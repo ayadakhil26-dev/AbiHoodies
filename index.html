@@ -404,14 +404,6 @@ function addMobileCard(type) {
   // Fokussiere das erste Input-Feld
   const firstInput = card.querySelector('input');
   if (firstInput) firstInput.focus();
-}function deleteMobileCard(btn) {
-  const container = btn.closest('.mobile-cards');
-  if (container.querySelectorAll('.mobile-card').length > 1) {
-    btn.closest('.mobile-card').remove();
-    syncMobileToTable();
-  } else {
-    alert('Mindestens eine Karte muss bleiben!');
-  }
 }
 
 function syncMobileToTable() {
@@ -762,4 +754,3 @@ window.addEventListener('DOMContentLoaded', function() {
 
 </script>
 </body>
-
