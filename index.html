@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta charset="UTF-8">
+<title>AbiHoodie – Final Pro Version</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  body { font-family:'Poppins',sans-serif; background:#fafafa; color:#222; padding:0; margin:0; }
+
+  /* --- APP LAYOUT --- */
+  .app-container{
+    max-width:1100px;
+    margin:0 auto;
+    padding:20px;
+  }
+
+  .app-card{
+    background:white;
+    padding:20px;
+    border-radius:18px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom:30px;
+  }
+
+  h1{
+    font-family:'Pacifico';
+    font-size:2.4rem;
+    color:#ff5e57;
+    text-align:center;
+    padding:20px;
+    background:white;
+    margin:0;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+  }
+
+  /* Card Titles */
+  .section-title{
+    font-size:1.4rem;
+    margin-bottom:15px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#ff5e57;
+    font-weight:600;
+  }
+
+  /* Table Style */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+  }
+  th, td{
+    border:1px solid #eee;
+    padding:10px;
+    word-wrap:break-word;
+  }
+  th{ background:#fff3f3; font-weight:600; }
+
+  input[type=text], input[type=number], select{
+    width:100%;
+    padding:8px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+  }
+
+  .delete-btn{
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-size:1.2rem;
+    color:#ff4d4d;
+  }
+
+  /* Buttons */
+  .button-bar{
+    display:flex;
+    gap:10px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  button.basic{
+    padding:10px 14px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    background:#ff5e57;
+    color:white;
+    font-size:0.95rem;
+    font-weight:600;
+  }
+  button.basic:hover{ opacity:0.85; }
+
+  /* Gallery */
+  #gallery img{
+    width:130px;
+    border-radius:14px;
+    box-shadow:0 2px 12px rgba(0,0,0,0.12);
+    cursor:pointer;
+    transition:0.2s;
+  }
+  #gallery img:hover{ transform:scale(1.07); }
+/* Karten-Style für Mobile (versteckt auf Desktop) */
+  .mobile-cards{
+    display:none;
+  }
+  
+  .mobile-card{
+    background:#f9f9f9;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+  }
+  
+  .mobile-card-field{
+    margin-bottom:10px;
+  }
+  
+  .mobile-card-field label{
+    display:block;
+    font-size:0.85rem;
+    color:#666;
+    margin-bottom:4px;
+    font-weight:500;
+  }
+  
+  .mobile-card-field input,
+  .mobile-card-field select{
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    box-sizing:border-box;
+  }
+  
+  .mobile-card-field input[type=checkbox]{
+    width:24px;
+    height:24px;
+  }
+  
+  .mobile-card-delete{
+    text-align:right;
+    margin-top:10px;
+  }
+  
+  .mobile-card-delete button{
+    background:#ff4d4d;
+    color:white;
+    border:none;
+    padding:8px 16px;
+    border-radius:8px;
+    font-size:14px;
+    cursor:pointer;
+  }
+  
+  .mobile-add-btn{
+    width:100%;
+    padding:14px;
+    background:#ff5e57;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:10px;
+  }
+  /* Mobile */
+  @media(max-width:700px){
+    .app-container{ padding:10px; }
+    .app-card{ padding:15px; }
+    h1{ font-size:1.8rem; padding:15px; }
+    .section-title{ font-size:1.2rem; margin-bottom:12px; }
+    
+    /* Verstecke Tabellen auf Mobile */
+    table{ display:none; }
+    
+    /* Zeige Karten auf Mobile */
+    .mobile-cards{ display:block; }
+    
+    #gallery img{
+      width:100px;
+    }
+    button.basic{
+      padding:12px 16px;
+      font-size:0.95rem;
+    }
+    .modal button{
+      width:45px !important;
+      height:45px !important;
+      font-size:22px !important;
+    }
+  }
+/* Bild Modal */
+  .modal{
+    display:none;
+    position:fixed;
+    z-index:1000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.9);
+    justify-content:center;
+    align-items:center;
+  }
+  .modal.active{ display:flex; }
+  .modal img{
+    max-width:90%;
+    max-height:90%;
+    border-radius:10px;
+  }
+</style>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script>
+  // Firebase initialisieren
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqVYp3nKF-cHok9TXEOJ41xvIJGSIBoHA",
+    authDomain: "abihoodies-41079.firebaseapp.com",
+    projectId: "abihoodies-41079",
+    storageBucket: "abihoodies-41079.firebasestorage.app",
+    messagingSenderId: "293358907954",
+    appId: "1:293358907954:web:ebaa16d9df91c9664bc22b"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+</head>
+<body>
+<div class="app-container">
+
+<h1>AbiHoodie – Aya & Mira </h1>
+
+<!-- NEW LAYOUT WRAPPER → CARD STYLE FOR EVERYTHING -->
+<div class="app-card">
+  <div class="button-bar">
+    <button class="basic" onclick="loadData()">🔄 Aktualisieren</button>
+  </div>
+</div><div class="app-card">
+  <div class="section-title"><span class="material-icons">check_circle</span>To‑Do</div>
+  <table id="todo-table">
+    <tr><th>Aufgabe</th><th>Fertig?</th><th></th></tr>
+    <tr>
+      <td><input type="text" placeholder="Aufgabe"></td>
+      <td><input type="checkbox"></td>
+      <td><button class="delete-btn">❌</button></td>
+    </tr>
+  </table>
+<div class="mobile-cards" id="todo-cards"></div>
+  <button class="mobile-add-btn" onclick="addMobileCard('todo')">+ Neue Aufgabe</button>
+</div>
+
+<div class="app-card">
+  <div class="section-title"><span class="material-icons">people</span>Schülerliste</div>
+  <table id="schueler-table">
+    <tr><th>Name</th><th>Größe</th><th>Bezahlt?</th><th></th></tr>
+    <tr>
+      <td><input type="text" placeholder="Name"></td>
+      <td><select><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></td>
+      <td><input type="checkbox"></td>
+      <td><button class="delete-btn">❌</button></td>
+    </tr>
+  </table>
+<div class="mobile-cards" id="schueler-cards"></div>
+  <button class="mobile-add-btn" onclick="addMobileCard('schueler')">+ Neuer Schüler</button>
+</div>
+
+<div class="app-card">
+  <div class="section-title"><span class="material-icons">storefront</span>Anbieter‑Vergleich</div>
+  <table id="anbieter-table">
+    <tr>
+      <th>Anbieter</th><th>Modell</th><th>Preis</th><th>Stoff</th><th>Ranking</th><th></th>
+    </tr>
+    <tr>
+      <td><input type="text" placeholder="Anbieter"></td>
+      <td><input type="text" placeholder="Modell"></td>
+      <td><input type="text" placeholder="Preis"></td>
+      <td><input type="text" placeholder="Stoff"></td>
+            <td><input type="number" min="1" max="10"></td>
+      <td><button class="delete-btn">❌</button></td>
+    </tr>
+  </table>
+<div class="mobile-cards" id="anbieter-cards"></div>
+  <button class="mobile-add-btn" onclick="addMobileCard('anbieter')">+ Neuer Anbieter</button>
+</div>
+
+<div class="app-card">
+  <div class="section-title"><span class="material-icons">image</span>Skizzen</div>
+  <input type="file" accept="image/*" multiple onchange="handleImageUpload(event)">
+  <div id="gallery" style="display:flex; flex-wrap:wrap; gap:15px; margin-top:15px;"></div>
+</div>
+<!-- Bild Modal -->
+<div class="modal" id="imageModal">
+  <button onclick="prevImage()" style="position:absolute; left:20px; background:white; border:none; border-radius:50%; width:50px; height:50px; font-size:24px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.3);">‹</button>
+  <img id="modalImage" src="" alt="" onclick="event.stopPropagation()">
+  <button onclick="nextImage()" style="position:absolute; right:20px; background:white; border:none; border-radius:50%; width:50px; height:50px; font-size:24px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.3);">›</button>
+  <div onclick="closeModal()" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1;"></div>
+</div> </div>
+<script>
+// Mobile Karten System
+function createMobileCard(type, data = {}) {
+  const card = document.createElement('div');
+  card.className = 'mobile-card';
+  
+  if (type === 'todo') {
+    card.innerHTML = `
+      <div class="mobile-card-field">
+        <label>Aufgabe</label>
+        <input type="text" placeholder="Aufgabe" value="${data.task || ''}">
+      </div>
+      <div class="mobile-card-field">
+        <label>Fertig?</label>
+        <input type="checkbox" ${data.done ? 'checked' : ''}>
+      </div>
+      <div class="mobile-card-delete">
+        <button onclick="deleteMobileCard(this)">Löschen</button>
+      </div>
+    `;
+  } else if (type === 'schueler') {
+    card.innerHTML = `
+      <div class="mobile-card-field">
+        <label>Name</label>
+        <input type="text" placeholder="Name" value="${data.name || ''}">
+      </div>
+      <div class="mobile-card-field">
+        <label>Größe</label>
+        <select>
+          <option ${data.size === 'XS' ? 'selected' : ''}>XS</option>
+          <option ${data.size === 'S' ? 'selected' : ''}>S</option>
+          <option ${data.size === 'M' ? 'selected' : ''}>M</option>
+          <option ${data.size === 'L' ? 'selected' : ''}>L</option>
+          <option ${data.size === 'XL' ? 'selected' : ''}>XL</option>
+          <option ${data.size === 'XXL' ? 'selected' : ''}>XXL</option>
+        </select>
+      </div>
+      <div class="mobile-card-field">
+        <label>Bezahlt?</label>
+        <input type="checkbox" ${data.paid ? 'checked' : ''}>
+      </div>
+      <div class="mobile-card-delete">
+        <button onclick="deleteMobileCard(this)">Löschen</button>
+      </div>
+    `;
+  } else if (type === 'anbieter') {
+    card.innerHTML = `
+      <div class="mobile-card-field">
+        <label>Anbieter</label>
+        <input type="text" placeholder="Anbieter" value="${data.anbieter || ''}">
+      </div>
+      <div class="mobile-card-field">
+        <label>Modell</label>
+        <input type="text" placeholder="Modell" value="${data.modell || ''}">
+      </div>
+      <div class="mobile-card-field">
+        <label>Preis</label>
+        <input type="text" placeholder="Preis" value="${data.preis || ''}">
+      </div>
+      <div class="mobile-card-field">
+        <label>Stoff</label>
+        <input type="text" placeholder="Stoff" value="${data.stoff || ''}">
+      </div>
+      <div class="mobile-card-field">
+        <label>Ranking (1-10)</label>
+        <input type="number" min="1" max="10" value="${data.ranking || ''}">
+      </div>
+      <div class="mobile-card-delete">
+        <button onclick="deleteMobileCard(this)">Löschen</button>
+      </div>
+    `;
+  }
+  
+  // Auto-save bei Änderungen
+  card.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('input', () => {
+      setTimeout(autoSave, 300);
+    });
+    input.addEventListener('change', () => {
+      setTimeout(autoSave, 300);
+    });
+  });
+  
+  return card;
+}
+
+function addMobileCard(type) {
+  const container = document.getElementById(`${type}-cards`);
+  const card = createMobileCard(type);
+  container.appendChild(card);
+  
+  // Synchronisiere zur Tabelle
+  syncMobileToTable();
+  
+  // Fokussiere das erste Input-Feld
+  const firstInput = card.querySelector('input');
+  if (firstInput) firstInput.focus();
+}function deleteMobileCard(btn) {
+  const container = btn.closest('.mobile-cards');
+  if (container.querySelectorAll('.mobile-card').length > 1) {
+    btn.closest('.mobile-card').remove();
+    syncMobileToTable();
+  } else {
+    alert('Mindestens eine Karte muss bleiben!');
+  }
+}
+
+function syncMobileToTable() {
+  // Sync Todo
+  syncCards('todo', 'todo-table', ['task', 'done']);
+  
+  // Sync Schüler
+  syncCards('schueler', 'schueler-table', ['name', 'size', 'paid']);
+  
+  // Sync Anbieter
+  syncCards('anbieter', 'anbieter-table', ['anbieter', 'modell', 'preis', 'stoff', 'ranking']);
+  
+  autoSave();
+}
+// Verhindere dass Mobile-Karten die Tabellen beim Tippen überschreiben
+let isSyncing = false;
+
+function syncMobileToTableSafe() {
+  if (isSyncing) return;
+  isSyncing = true;
+  
+  syncMobileToTable();
+  
+  setTimeout(() => {
+    isSyncing = false;
+  }, 100);
+}
+function syncCards(type, tableId, fields) {
+  const cards = document.querySelectorAll(`#${type}-cards .mobile-card`);
+  const table = document.getElementById(tableId);
+  
+  // Lösche alle Zeilen außer Header und erste
+  while (table.rows.length > 2) {
+    table.deleteRow(2);
+  }
+  
+  cards.forEach((card, idx) => {
+    const inputs = card.querySelectorAll('input, select');
+    let row = table.rows[idx + 1];
+    
+    if (!row) {
+      const lastRow = table.rows[table.rows.length - 1];
+      row = lastRow.cloneNode(true);
+      table.appendChild(row);
+    }
+    
+    const rowInputs = row.querySelectorAll('input, select');
+    inputs.forEach((input, i) => {
+      if (rowInputs[i]) {
+        if (input.type === 'checkbox') {
+          rowInputs[i].checked = input.checked;
+        } else {
+          rowInputs[i].value = input.value;
+        }
+      }
+    });
+  });
+}
+function handleImageUpload(event) {
+  const files = event.target.files;
+  const gallery = document.getElementById('gallery');
+  
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'relative';
+      wrapper.style.display = 'inline-block';
+      
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.onclick = function() {
+        openModal(e.target.result);
+      };
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.innerHTML = '❌';
+      deleteBtn.style.position = 'absolute';
+      deleteBtn.style.top = '5px';
+      deleteBtn.style.right = '5px';
+      deleteBtn.style.background = 'white';
+      deleteBtn.style.border = 'none';
+      deleteBtn.style.borderRadius = '50%';
+      deleteBtn.style.width = '25px';
+      deleteBtn.style.height = '25px';
+      deleteBtn.style.cursor = 'pointer';
+      deleteBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+      deleteBtn.onclick = function(e) {
+        e.stopPropagation();
+        wrapper.remove();
+      };
+      
+      wrapper.appendChild(img);
+      wrapper.appendChild(deleteBtn);
+      gallery.appendChild(wrapper);
+    };
+    reader.readAsDataURL(file);
+  });
+}// Neue Zeile hinzufügen wenn Enter gedrückt wird
+// Neue Zeile hinzufügen wenn Enter gedrückt wird
+function setupAutoNewRow(tableId) {
+  const table = document.getElementById(tableId);
+  table.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const row = e.target.closest('tr');
+      const inputs = row.querySelectorAll('input, select');
+      
+      // Prüfe ob Zeile ausgefüllt ist
+      let isFilled = true;
+      inputs.forEach(input => {
+        if (input.type === 'text' && !input.value.trim()) {
+          isFilled = false;
+        }
+      });
+      
+      // Wenn ausgefüllt und letzte Zeile: neue Zeile
+      if (isFilled && row === table.rows[table.rows.length - 1]) {
+        const newRow = row.cloneNode(true);
+        // WICHTIG: Leere die NEUE Zeile, nicht die alte!
+        newRow.querySelectorAll('input[type=text]').forEach(input => input.value = '');
+        newRow.querySelectorAll('input[type=checkbox]').forEach(input => input.checked = false);
+        newRow.querySelectorAll('input[type=number]').forEach(input => input.value = '');
+        table.appendChild(newRow);
+        
+        // Fokus auf erste Input der NEUEN Zeile
+        const firstInput = newRow.querySelector('input');
+        if (firstInput) firstInput.focus();
+        
+        // Speichere erst NACH dem Hinzufügen
+        setTimeout(autoSave, 100);
+      }
+    }
+  });
+}let currentImageIndex = 0;
+let allImages = [];
+// Delete-Buttons aktivieren
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+    const btn = e.target.classList.contains('delete-btn') ? e.target : e.target.closest('.delete-btn');
+    const table = btn.closest('table');
+    const row = btn.closest('tr');
+    
+    // Mindestens eine Zeile muss bleiben
+    if (table.rows.length > 2) {
+      row.remove();
+      autoSave();
+    } else {
+      alert('Mindestens eine Zeile muss bleiben!');
+    }
+  }
+});
+function openModal(src) {
+  allImages = Array.from(document.querySelectorAll('#gallery img')).map(img => img.src);
+  currentImageIndex = allImages.indexOf(src);
+  
+  const modal = document.getElementById('imageModal');
+  const modalImg = document.getElementById('modalImage');
+  modalImg.src = src;
+  modal.classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('imageModal').classList.remove('active');
+}
+
+function nextImage() {
+  currentImageIndex = (currentImageIndex + 1) % allImages.length;
+  document.getElementById('modalImage').src = allImages[currentImageIndex];
+}
+
+function prevImage() {
+  currentImageIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
+  document.getElementById('modalImage').src = allImages[currentImageIndex];
+}// Aktiviere für alle Tabellen
+setupAutoNewRow('todo-table');
+setupAutoNewRow('schueler-table');
+setupAutoNewRow('anbieter-table');
+function getTableData(tableId) {
+  const table = document.getElementById(tableId);
+  const data = [];
+  for (let i = 1; i < table.rows.length; i++) {
+    const row = table.rows[i];
+    const rowData = [];
+    row.querySelectorAll('input, select').forEach(input => {
+      if (input.type === 'checkbox') {
+        rowData.push(input.checked);
+      } else {
+        rowData.push(input.value);
+      }
+    });
+    data.push(rowData);
+  }
+  return data;
+}
+
+// Cloud-Speicher mit Firebase
+async function autoSave() {
+  const data = {
+    todos: JSON.stringify(getTableData('todo-table')),
+    schueler: JSON.stringify(getTableData('schueler-table')),
+    anbieter: JSON.stringify(getTableData('anbieter-table')),
+    images: JSON.stringify(Array.from(document.querySelectorAll('#gallery img')).map(img => img.src)),
+    timestamp: Date.now()
+  };
+  
+  try {
+    await db.collection('abihoodie').doc('main-data').set(data);
+    console.log('✅ In Cloud gespeichert!');
+  } catch(e) {
+    console.error('❌ Fehler:', e);
+  }
+  }
+
+async function loadData() {
+  try {
+    const doc = await db.collection('abihoodie').doc('main-data').get();
+    if (doc.exists) {
+      const data = doc.data();
+      
+      const todos = JSON.parse(data.todos || '[]');
+      const schueler = JSON.parse(data.schueler || '[]');
+      const anbieter = JSON.parse(data.anbieter || '[]');
+      const images = JSON.parse(data.images || '[]');
+      
+      setTableData('todo-table', todos);
+      setTableData('schueler-table', schueler);
+      setTableData('anbieter-table', anbieter);
+      
+      loadMobileCards('todo', todos);
+      loadMobileCards('schueler', schueler);
+      loadMobileCards('anbieter', anbieter);
+      
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      images.forEach(src => {
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block';
+        
+        const img = document.createElement('img');
+        img.src = src;
+        img.onclick = function() { openModal(src); };
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '❌';
+        deleteBtn.style.position = 'absolute';
+        deleteBtn.style.top = '5px';
+        deleteBtn.style.right = '5px';
+        deleteBtn.style.background = 'white';
+        deleteBtn.style.border = 'none';
+        deleteBtn.style.borderRadius = '50%';
+        deleteBtn.style.width = '25px';
+        deleteBtn.style.height = '25px';
+        deleteBtn.style.cursor = 'pointer';
+        deleteBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+        deleteBtn.onclick = function(e) {
+          e.stopPropagation();
+          wrapper.remove();
+          autoSave();
+        };
+        
+        wrapper.appendChild(img);
+        wrapper.appendChild(deleteBtn);
+        gallery.appendChild(wrapper);
+      });
+      console.log('✅ Aus Cloud geladen!');
+    }
+  } catch(e) {
+    console.error('❌ Fehler:', e);
+  }
+}
+function loadMobileCards(type, data) {
+  const container = document.getElementById(`${type}-cards`);
+  container.innerHTML = '';
+  
+  if (!data || data.length === 0) {
+    container.appendChild(createMobileCard(type));
+    return;
+  }
+  
+  data.forEach(rowData => {
+    let cardData = {};
+    
+    if (type === 'todo') {
+      cardData = { task: rowData[0], done: rowData[1] };
+    } else if (type === 'schueler') {
+      cardData = { name: rowData[0], size: rowData[1], paid: rowData[2] };
+    } else if (type === 'anbieter') {
+      cardData = { anbieter: rowData[0], modell: rowData[1], preis: rowData[2], stoff: rowData[3], ranking: rowData[4] };
+    }
+    
+    container.appendChild(createMobileCard(type, cardData));
+  });
+}
+function setTableData(tableId, data) {
+  const table = document.getElementById(tableId);
+  
+  // Lösche alle Zeilen außer Header und erste Datenzeile
+  while (table.rows.length > 2) {
+    table.deleteRow(2);
+  }
+  
+  // Wenn keine Daten da sind, behalte die leere Zeile
+  if (!data || data.length === 0) {
+    return;
+  }
+  
+  data.forEach((rowData, idx) => {
+    let row;
+    if (idx === 0) {
+      // Erste Zeile bereits vorhanden
+      row = table.rows[1];
+    } else {
+      // Neue Zeile hinzufügen
+      const lastRow = table.rows[table.rows.length - 1];
+      const newRow = lastRow.cloneNode(true);
+      newRow.querySelectorAll('input[type=text]').forEach(input => input.value = '');
+      newRow.querySelectorAll('input[type=checkbox]').forEach(input => input.checked = false);
+      newRow.querySelectorAll('input[type=number]').forEach(input => input.value = '');
+      table.appendChild(newRow);
+      row = newRow;
+    }
+    
+    const inputs = row.querySelectorAll('input, select');
+    rowData.forEach((value, i) => {
+      if (inputs[i]) {
+        if (inputs[i].type === 'checkbox') {
+          inputs[i].checked = value;
+        } else {
+          inputs[i].value = value;
+        }
+      }
+    });
+  });
+}// Warte bis Seite fertig geladen ist
+window.addEventListener('DOMContentLoaded', function() {
+  loadData();
+  
+  // Speichere bei jeder Änderung
+  document.addEventListener('input', autoSave);
+  document.addEventListener('change', autoSave);
+});
+
+</script>
+</body>
