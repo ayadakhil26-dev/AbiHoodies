@@ -507,9 +507,13 @@ function handleImageUpload(event) {
       wrapper.appendChild(img);
       wrapper.appendChild(deleteBtn);
       gallery.appendChild(wrapper);
+      
+      // Speichere nach Bild-Upload
+      setTimeout(autoSave, 500);
     };
     reader.readAsDataURL(file);
   });
+}
 }// Neue Zeile hinzufügen wenn Enter gedrückt wird
 // Neue Zeile hinzufügen wenn Enter gedrückt wird
 function setupAutoNewRow(tableId) {
