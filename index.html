@@ -96,10 +96,46 @@
     font-weight:600;
   }
   button.basic:hover{ opacity:0.85; }
+/* Skizzen Upload Button */
+.sketch-upload-wrapper {
+  display: inline-block;
+  position: relative;
+}
 
+.sketch-upload-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: 0.3s;
+}
+
+.sketch-upload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.sketch-upload-btn:active {
+  transform: translateY(0);
+}
+
+/* Verstecke den echten File Input */
+#sketchUpload {
+  display: none;
+}
   /* Gallery */
   #gallery img{
     width:130px;
+    height:130px;
+    object-fit:cover;
     border-radius:14px;
     box-shadow:0 2px 12px rgba(0,0,0,0.12);
     cursor:pointer;
@@ -188,6 +224,8 @@
     
     #gallery img{
       width:100px;
+      height:100px;
+      object-fit:cover;
     }
     button.basic{
       padding:12px 16px;
@@ -218,6 +256,37 @@
     max-height:90%;
     border-radius:10px;
   }
+/* Versteckter File Input */
+.anbieter-img-upload {
+  display: none;
+}
+
+/* Runder Upload Button */
+.upload-btn-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.upload-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ff5e57;
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(255, 94, 87, 0.3);
+  transition: 0.2s;
+}
+
+.upload-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 94, 87, 0.5);
+}
 </style>
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -247,7 +316,18 @@
   <div class="button-bar">
     <button class="basic" onclick="loadData()">🔄 Aktualisieren</button>
   </div>
-</div><div class="app-card">
+</div>
+<div class="app-card">
+  <div class="section-title"><span class="material-icons">image</span>Skizzen</div>
+  <div class="sketch-upload-wrapper">
+    <button class="sketch-upload-btn" onclick="document.getElementById('sketchUpload').click()">
+      <span class="material-icons">add_photo_alternate</span>
+      Skizzen hochladen
+    </button>
+    <input type="file" id="sketchUpload" accept="image/*" multiple onchange="handleImageUpload(event)">
+  </div>
+  <div id="gallery" style="display:flex; flex-wrap:wrap; gap:15px; margin-top:15px;"></div></div>
+<div class="app-card">
   <div class="section-title"><span class="material-icons">check_circle</span>To‑Do</div>
   <table id="todo-table">
     <tr><th>Aufgabe</th><th>Fertig?</th><th></th></tr>
@@ -261,6 +341,31 @@
   <button class="mobile-add-btn" onclick="addMobileCard('todo')">+ Neue Aufgabe</button>
 </div>
 
+
+<div class="app-card">
+  <div class="section-title"><span class="material-icons">storefront</span>Anbieter‑Vergleich</div>
+  <table id="anbieter-table">
+    <tr>
+  <th>Anbieter</th><th>Modell</th><th>Bild</th><th>Preis</th><th>Stoff</th><th>Ranking</th><th></th>
+</tr>
+<tr>
+  <td><input type="text" placeholder="Anbieter"></td>
+  <td><input type="text" placeholder="Modell"></td>
+  <td>
+  <div class="upload-btn-wrapper">
+    <button type="button" class="upload-btn" onclick="triggerFileUpload(this)">+</button>
+    <input type="file" accept="image/*" class="anbieter-img-upload">
+  </div>
+</td>
+  <td><input type="text" placeholder="Preis"></td>
+  <td><input type="text" placeholder="Stoff"></td>
+  <td><input type="number" min="1" max="10"></td>
+  <td><button class="delete-btn">❌</button></td>
+</tr>
+  </table>
+<div class="mobile-cards" id="anbieter-cards"></div>
+  <button class="mobile-add-btn" onclick="addMobileCard('anbieter')">+ Neuer Anbieter</button>
+</div>
 <div class="app-card">
   <div class="section-title"><span class="material-icons">people</span>Schülerliste</div>
   <table id="schueler-table">
@@ -276,29 +381,6 @@
   <button class="mobile-add-btn" onclick="addMobileCard('schueler')">+ Neuer Schüler</button>
 </div>
 
-<div class="app-card">
-  <div class="section-title"><span class="material-icons">storefront</span>Anbieter‑Vergleich</div>
-  <table id="anbieter-table">
-    <tr>
-      <th>Anbieter</th><th>Modell</th><th>Preis</th><th>Stoff</th><th>Ranking</th><th></th>
-    </tr>
-    <tr>
-      <td><input type="text" placeholder="Anbieter"></td>
-      <td><input type="text" placeholder="Modell"></td>
-      <td><input type="text" placeholder="Preis"></td>
-      <td><input type="text" placeholder="Stoff"></td>
-            <td><input type="number" min="1" max="10"></td>
-      <td><button class="delete-btn">❌</button></td>
-    </tr>
-  </table>
-<div class="mobile-cards" id="anbieter-cards"></div>
-  <button class="mobile-add-btn" onclick="addMobileCard('anbieter')">+ Neuer Anbieter</button>
-</div>
-
-<div class="app-card">
-  <div class="section-title"><span class="material-icons">image</span>Skizzen</div>
-  <input type="file" accept="image/*" multiple onchange="handleImageUpload(event)">
-  <div id="gallery" style="display:flex; flex-wrap:wrap; gap:15px; margin-top:15px;"></div>
 </div>
 <!-- Bild Modal -->
 <div class="modal" id="imageModal">
@@ -314,25 +396,29 @@ function createMobileCard(type, data = {}) {
   card.className = 'mobile-card';
   
   if (type === 'todo') {
+  card.innerHTML = `
+    <div class="mobile-card-field">
+      <label>Aufgabe</label>
+      <input type="text" placeholder="Aufgabe" value="${data.task || ''}">
+    </div>
+    <div class="mobile-card-field">
+      <label>Fertig?</label>
+      <input type="checkbox" ${data.done ? 'checked' : ''}>
+    </div>
+    <div class="mobile-card-delete">
+      <button onclick="deleteMobileCard(this)">Löschen</button>
+    </div>
+  `;
+} else if (type === 'schueler') {
     card.innerHTML = `
       <div class="mobile-card-field">
-        <label>Aufgabe</label>
-        <input type="text" placeholder="Aufgabe" value="${data.task || ''}">
-      </div>
-      <div class="mobile-card-field">
-        <label>Fertig?</label>
-        <input type="checkbox" ${data.done ? 'checked' : ''}>
-      </div>
-      <div class="mobile-card-delete">
-        <button onclick="deleteMobileCard(this)">Löschen</button>
-      </div>
-    `;
-  } else if (type === 'schueler') {
-    card.innerHTML = `
-      <div class="mobile-card-field">
-        <label>Name</label>
-        <input type="text" placeholder="Name" value="${data.name || ''}">
-      </div>
+  <label>Bild</label>
+  <div class="upload-btn-wrapper">
+    <button type="button" class="upload-btn" onclick="triggerFileUpload(this)">+</button>
+    <input type="file" accept="image/*" class="anbieter-img-upload">
+  </div>
+  ${data.image ? `<img src="${data.image}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-top:8px;cursor:pointer;" onclick="openModal('${data.image}')">` : ''}
+</div>
       <div class="mobile-card-field">
         <label>Größe</label>
         <select>
@@ -363,6 +449,11 @@ function createMobileCard(type, data = {}) {
         <input type="text" placeholder="Modell" value="${data.modell || ''}">
       </div>
       <div class="mobile-card-field">
+        <label>Bild</label>
+        <input type="file" accept="image/*" class="anbieter-img-upload">
+        ${data.image ? `<img src="${data.image}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-top:8px;cursor:pointer;" onclick="openModal('${data.image}')">` : ''}
+      </div>
+      <div class="mobile-card-field">
         <label>Preis</label>
         <input type="text" placeholder="Preis" value="${data.preis || ''}">
       </div>
@@ -380,19 +471,30 @@ function createMobileCard(type, data = {}) {
     `;
   }
   
-  // Auto-save bei Änderungen
+ // Auto-save bei Änderungen
   card.querySelectorAll('input, select').forEach(input => {
     input.addEventListener('input', () => {
-      setTimeout(autoSave, 300);
+      syncMobileToTable();
     });
     input.addEventListener('change', () => {
-      setTimeout(autoSave, 300);
+      syncMobileToTable();
     });
   });
   
   return card;
 }
-
+function deleteMobileCard(button) {
+  const card = button.closest('.mobile-card');
+  const container = card.parentElement;
+  
+  // Mindestens eine Karte muss bleiben
+  if (container.querySelectorAll('.mobile-card').length > 1) {
+    card.remove();
+    syncMobileToTable();
+  } else {
+    alert('Mindestens eine Karte muss bleiben!');
+  }
+}
 function addMobileCard(type) {
   const container = document.getElementById(`${type}-cards`);
   const card = createMobileCard(type);
@@ -414,7 +516,7 @@ function syncMobileToTable() {
   syncCards('schueler', 'schueler-table', ['name', 'size', 'paid']);
   
   // Sync Anbieter
-  syncCards('anbieter', 'anbieter-table', ['anbieter', 'modell', 'preis', 'stoff', 'ranking']);
+  syncCards('anbieter', 'anbieter-table', ['anbieter', 'modell', 'image', 'preis', 'stoff', 'ranking']);
   
   autoSave();
 }
@@ -506,7 +608,64 @@ function handleImageUpload(event) {
     reader.readAsDataURL(file);
   });
 }
-// Neue Zeile hinzufügen wenn Enter gedrückt wird
+// Trigger File Upload beim Button-Klick
+function triggerFileUpload(button) {
+  const fileInput = button.nextElementSibling;
+  fileInput.click();
+}
+// Anbieter-Bild Upload Handler (FINAL FIX)
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('anbieter-img-upload')) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const fileInput = e.target;
+    const cell = fileInput.closest('td');
+    
+    // Verhindere Auto-Save während Upload
+    const originalAutoSave = window.autoSave;
+    window.autoSave = function() {}; // Deaktiviere temporär
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const imageData = event.target.result;
+      
+      // Lösche alte Daten komplett
+      fileInput.removeAttribute('data-image');
+      
+      // Speichere neues Bild
+      fileInput.setAttribute('data-image', imageData);
+      
+      // Entferne alte Vorschau
+      const oldPreview = cell.querySelector('.img-preview');
+      if (oldPreview) oldPreview.remove();
+      
+      // Erstelle neue Vorschau
+      const preview = document.createElement('img');
+      preview.className = 'img-preview';
+      preview.src = imageData;
+      preview.style.width = '60px';
+      preview.style.height = '60px';
+      preview.style.objectFit = 'cover';
+      preview.style.borderRadius = '8px';
+      preview.style.marginTop = '8px';
+      preview.style.cursor = 'pointer';
+      preview.style.display = 'block';
+      preview.onclick = function() {
+        openModal(imageData);
+      };
+      
+      cell.appendChild(preview);
+      
+      // Aktiviere Auto-Save wieder und speichere
+      setTimeout(() => {
+        window.autoSave = originalAutoSave;
+        autoSave();
+      }, 200);
+    };
+    reader.readAsDataURL(file);
+  }
+});
 // Neue Zeile hinzufügen wenn Enter gedrückt wird
 function setupAutoNewRow(tableId) {
   const table = document.getElementById(tableId);
@@ -595,6 +754,9 @@ function getTableData(tableId) {
     row.querySelectorAll('input, select').forEach(input => {
       if (input.type === 'checkbox') {
         rowData.push(input.checked);
+      } else if (input.type === 'file') {
+        // Speichere Bild-Daten
+        rowData.push(input.getAttribute('data-image') || '');
       } else {
         rowData.push(input.value);
       }
@@ -603,7 +765,6 @@ function getTableData(tableId) {
   }
   return data;
 }
-
 // Cloud-Speicher mit Firebase
 async function autoSave() {
   const data = {
@@ -697,7 +858,7 @@ function loadMobileCards(type, data) {
     } else if (type === 'schueler') {
       cardData = { name: rowData[0], size: rowData[1], paid: rowData[2] };
     } else if (type === 'anbieter') {
-      cardData = { anbieter: rowData[0], modell: rowData[1], preis: rowData[2], stoff: rowData[3], ranking: rowData[4] };
+      cardData = { anbieter: rowData[0], modell: rowData[1], image: rowData[2], preis: rowData[3], stoff: rowData[4], ranking: rowData[5] };
     }
     
     container.appendChild(createMobileCard(type, cardData));
@@ -732,25 +893,55 @@ function setTableData(tableId, data) {
       row = newRow;
     }
     
-    const inputs = row.querySelectorAll('input, select');
+   const inputs = row.querySelectorAll('input, select');
     rowData.forEach((value, i) => {
       if (inputs[i]) {
         if (inputs[i].type === 'checkbox') {
           inputs[i].checked = value;
-        } else {
+        } else if (inputs[i].type === 'file' && value) {
+          // Lade gespeichertes Bild
+          inputs[i].setAttribute('data-image', value);
+          const cell = inputs[i].closest('td');
+          let preview = cell.querySelector('.img-preview');
+          if (!preview) {
+            preview = document.createElement('img');
+            preview.className = 'img-preview';
+            preview.style.width = '50px';
+            preview.style.height = '50px';
+            preview.style.objectFit = 'cover';
+            preview.style.borderRadius = '8px';
+            preview.style.marginTop = '5px';
+            preview.style.cursor = 'pointer';
+            preview.style.display = 'block';
+            cell.appendChild(preview);
+          }
+          preview.src = value;
+          preview.onclick = function() {
+            openModal(value);
+          };
+        } else if (inputs[i].type !== 'file') {
           inputs[i].value = value;
         }
       }
     });
   });
-}// Warte bis Seite fertig geladen ist
+}
+// Warte bis Seite fertig geladen ist
 window.addEventListener('DOMContentLoaded', function() {
   loadData();
   
-  // Speichere bei jeder Änderung
-  document.addEventListener('input', autoSave);
-  document.addEventListener('change', autoSave);
+  // Speichere bei jeder Änderung (aber NICHT bei File-Inputs!)
+  document.addEventListener('input', function(e) {
+    if (e.target.type !== 'file') {
+      autoSave();
+    }
+  });
+  
+  document.addEventListener('change', function(e) {
+    if (e.target.type !== 'file') {
+      autoSave();
+    }
+  });
 });
-
 </script>
 </body>
